@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homeserver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <span class="logo-mark">▣</span>
+      <span class="logo-text">HOMESERVER</span>
+    </div>
+    <div class="header-right">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-label" id="statusLabel">verbinde…</span>
+      <span class="last-update" id="lastUpdate">–</span>
+    </div>
+  </header>
+
+  <!-- MAIN GRID -->
+  <main>
+
+    <!-- VOLUMES -->
+    <section class="card" id="cardVolumes">
+      <div class="card-header">
+        <span class="card-icon">◈</span>
+        <h2>Volumes</h2>
+      </div>
+      <div class="card-body" id="volumeList">
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+    </section>
+
+    <!-- HARDWARE -->
+    <section class="card" id="cardHardware">
+      <div class="card-header">
+        <span class="card-icon">◎</span>
+        <h2>Hardware</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- RAM -->
+        <div class="hw-block">
+          <div class="hw-label-row">
+            <span class="hw-label">RAM</span>
+            <span class="hw-value" id="ramPercent">–</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="ramBar" style="width:0%"></div>
+          </div>
+          <div class="hw-sub" id="ramSub">–</div>
+        </div>
+
+        <!-- CPU -->
+        <div class="hw-block">
+          <div class="hw-label-row">
+            <span class="hw-label">CPU</span>
+            <span class="hw-value" id="cpuPercent">–</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="cpuBar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Temperatures -->
+        <div class="hw-block" id="tempsBlock">
+          <div class="hw-label-row">
+            <span class="hw-label">Temperaturen</span>
+          </div>
+          <div id="tempsList" class="temps-list">
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SYSTEM CONTROL -->
+    <section class="card" id="cardSystem">
+      <div class="card-header">
+        <span class="card-icon">⏻</span>
+        <h2>System</h2>
+      </div>
+      <div class="card-body system-controls">
+        <button class="btn btn-warn" id="btnReboot" onclick="confirmAction('reboot')">
+          <span class="btn-icon">↺</span>
+          Neu starten
+        </button>
+        <button class="btn btn-danger" id="btnShutdown" onclick="confirmAction('shutdown')">
+          <span class="btn-icon">⏻</span>
+          Herunterfahren
+        </button>
+        <p class="system-hint">Aktion wird nach Bestätigung sofort ausgeführt.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CONFIRMATION MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-icon" id="modalIcon">⏻</div>
+      <h3 id="modalTitle">Wirklich herunterfahren?</h3>
+      <p id="modalDesc">Der Server wird sofort heruntergefahren. Alle laufenden Dienste werden beendet.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+        <button class="btn btn-danger" id="modalConfirmBtn" onclick="executeAction()">Bestätigen</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

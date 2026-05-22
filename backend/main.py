@@ -3,14 +3,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 
-from routers import metrics, storage
+from routers import control, metrics, storage
 
 app = FastAPI(title="VirusLab Dashboard")
 
+app.include_router(control.router, prefix="/api")
 app.include_router(metrics.router, prefix="/api")
 app.include_router(storage.router, prefix="/api")
 
-frontend_path = Path(__file__).parent.parent / "static" # change to "frontend" in near future
+frontend_path = Path(__file__).parent.parent / "frontend"
 app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
 
 @app.get("/")

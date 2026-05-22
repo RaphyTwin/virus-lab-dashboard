@@ -16,7 +16,7 @@ def _uptime_seconds() -> int:
 
 
 @router.get("/metrics/system")
-async def get_system_metrics() -> dict[str, Any]:
+def get_system_metrics() -> dict[str, Any]:
     """CPU, RAM, uptime, hostname — public endpoint."""
 
     # CPU (short interval to avoid blocking)
@@ -69,7 +69,7 @@ async def get_system_metrics() -> dict[str, Any]:
 
 
 @router.get("/metrics/temperatures")
-async def get_temperatures() -> dict[str, Any]:
+def get_temperatures() -> dict[str, Any]:
     """All available temperature sensors — admin endpoint."""
 
     temps: dict[str, list] = {}
@@ -144,5 +144,5 @@ async def get_temperatures() -> dict[str, Any]:
 
 
 @router.get("/health")
-async def health() -> dict[str, str]:
+def health() -> dict[str, str]:
     return {"status": "ok", "ts": datetime.now(timezone.utc).isoformat()}

@@ -30,7 +30,7 @@ def _run(cmd: list[str], timeout: int = 10) -> tuple[int, str, str]:
 # ---------------------------------------------------------------------------
 
 @router.get("/storage/volumes")
-async def get_volumes() -> dict[str, Any]:
+def get_volumes() -> dict[str, Any]:
     """Disk usage of all mounted filesystems (df-based) + psutil."""
     import psutil
 
@@ -102,7 +102,7 @@ def _parse_zpool_list(output: str) -> list[dict]:
 
 
 @router.get("/storage/zfs/pools")
-async def get_zfs_pools() -> dict[str, Any]:
+def get_zfs_pools() -> dict[str, Any]:
     rc, out, err = _run(["zpool", "list", "-H", "-p", "-o",
                          "name,size,alloc,free,expandsize,cap,frag,dedup,health,altroot"])
     if rc != 0:
@@ -192,7 +192,7 @@ def _parse_scrub_info(scan_line: str | None) -> dict:
 
 
 @router.get("/storage/zfs/status")
-async def get_zfs_status() -> dict[str, Any]:
+def get_zfs_status() -> dict[str, Any]:
     rc, out, err = _run(["zpool", "status", "-v"])
     if rc != 0:
         return {"available": False, "error": err, "pools": []}
@@ -220,7 +220,7 @@ async def get_zfs_status() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 @router.get("/storage/zfs/scrub-schedule")
-async def get_scrub_schedule() -> dict[str, Any]:
+def get_scrub_schedule() -> dict[str, Any]:
     result: dict[str, Any] = {"systemd_timer": None, "cron": None}
 
     # Check systemd timer
@@ -284,7 +284,7 @@ def _parse_smart_attributes(output: str) -> dict:
 
 
 @router.get("/storage/smart")
-async def get_smart() -> dict[str, Any]:
+def get_smart() -> dict[str, Any]:
     if not shutil.which("smartctl"):
         return {"available": False, "error": "smartctl not found", "disks": []}
 
@@ -359,7 +359,7 @@ async def get_smart() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 @router.get("/storage/trim")
-async def get_trim_status() -> dict[str, Any]:
+def get_trim_status() -> dict[str, Any]:
     result: dict[str, Any] = {"systemd_timer": None, "last_run": None, "journal": None}
 
     # systemd fstrim timer

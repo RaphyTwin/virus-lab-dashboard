@@ -2,10 +2,11 @@ import asyncio
 import subprocess
 import shutil
 import json
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from typing import Any, Optional
+from ..config import get_settings, Settings
 
 router = APIRouter(tags=["control"])
 
@@ -27,9 +28,9 @@ def _run(cmd: list[str], timeout: int = 10) -> tuple[int, str, str]:
 # ── Shutdown ──────────────────────────────────────────────────────────────────
 
 @router.post("/control/shutdown")
-async def shutdown() -> dict[str, Any]:
+def shutdown() -> dict[str, Any]:
     """Fährt den Server herunter. Braucht root / sudo."""
-    rc, _, err = _run(["shutdown", "-h", "now"])
+    rc, _, err = _run(["sudo", "poweroff"])
     if rc != 0:
         raise HTTPException(status_code=500, detail=err or "Shutdown fehlgeschlagen")
     return {"ok": True, "message": "Shutdown eingeleitet"}
@@ -38,9 +39,9 @@ async def shutdown() -> dict[str, Any]:
 # ── Reboot ────────────────────────────────────────────────────────────────────
 
 @router.post("/control/reboot")
-async def reboot() -> dict[str, Any]:
+def reboot() -> dict[str, Any]:
     """Startet den Server neu. Braucht root / sudo."""
-    rc, _, err = _run(["reboot"])
+    rc, _, err = _run(["sudo", "reboot"])
     if rc != 0:
         raise HTTPException(status_code=500, detail=err or "Reboot fehlgeschlagen")
     return {"ok": True, "message": "Neustart eingeleitet"}
@@ -49,13 +50,13 @@ async def reboot() -> dict[str, Any]:
 # ── Tailscale: Status ─────────────────────────────────────────────────────────
 
 @router.get("/control/tailscale/status")
-async def tailscale_status() -> dict[str, Any]:
+def tailscale_status() -> dict[str, Any]:
     global _tailscale_timer_task, _tailscale_timer_end
 
     if not shutil.which("tailscale"):
         return {"available": False}
 
-    rc, out, err = _run(["tailscale", "status", "--json"])
+    rc, out, err = _run(["sudo", "tailscale", "status", "--json"])
     if rc != 0:
         return {"available": True, "connected": False, "error": err}
 
@@ -102,8 +103,8 @@ async def tailscale_status() -> dict[str, Any]:
 # ── Tailscale: Up ─────────────────────────────────────────────────────────────
 
 @router.post("/control/tailscale/up")
-async def tailscale_up() -> dict[str, Any]:
-    rc, out, err = _run(["tailscale", "up", "--accept-routes"], timeout=20)
+def tailscale_up(settings: Settings = Depends(get_settings)) -> dict[str, Any]:
+    rc, out, err = _run(["sudo", "tailscale", "up", f"--accept-routes={settings.homeserver_ip}/32", "--accept-dns=false"], timeout=20)
     if rc != 0:
         raise HTTPException(status_code=500, detail=err or out or "tailscale up fehlgeschlagen")
     return {"ok": True}
@@ -112,7 +113,7 @@ async def tailscale_up() -> dict[str, Any]:
 # ── Tailscale: Down ───────────────────────────────────────────────────────────
 
 @router.post("/control/tailscale/down")
-async def tailscale_down() -> dict[str, Any]:
+def tailscale_down() -> dict[str, Any]:
     global _tailscale_timer_task, _tailscale_timer_end
     # Cancel any running auto-off timer first
     if _tailscale_timer_task and not _tailscale_timer_task.done():
@@ -120,7 +121,7 @@ async def tailscale_down() -> dict[str, Any]:
     _tailscale_timer_task = None
     _tailscale_timer_end = None
 
-    rc, out, err = _run(["tailscale", "down"])
+    rc, out, err = _run(["sudo", "tailscale", "down"])
     if rc != 0:
         raise HTTPException(status_code=500, detail=err or out or "tailscale down fehlgeschlagen")
     return {"ok": True}
@@ -149,7 +150,7 @@ async def tailscale_auto_off(req: AutoOffRequest) -> dict[str, Any]:
 
     async def _auto_off():
         await asyncio.sleep(seconds)
-        _run(["tailscale", "down"])
+        await asyncio.to_thread(_run, ["sudo", "tailscale", "down"])
 
     _tailscale_timer_task = asyncio.create_task(_auto_off())
 

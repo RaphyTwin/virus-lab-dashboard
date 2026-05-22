@@ -8,14 +8,21 @@ from typing import Any
 router = APIRouter(tags=["storage"])
 
 
+# Eine Hilfsliste von Befehlen, die Root-Rechte benötigen
+PRIVILEGED_COMMANDS = {"smartctl", "zpool"}
+
 def _run(cmd: list[str], timeout: int = 10) -> tuple[int, str, str]:
+    # Wenn der Hauptbefehl Root-Rechte benötigt, "sudo" davor hängen
+    if cmd and cmd[0] in PRIVILEGED_COMMANDS:
+        cmd = ["sudo"] + cmd
+
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         return r.returncode, r.stdout, r.stderr
     except FileNotFoundError:
-        return -1, "", f"command not found: {cmd[0]}"
+        return -1, "", f"Command not found: {cmd[0]}"
     except subprocess.TimeoutExpired:
-        return -1, "", "timeout"
+        return -1, "", "Timeout"
 
 
 # ---------------------------------------------------------------------------

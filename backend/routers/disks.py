@@ -8,7 +8,7 @@ def get_disks():
     partitions = psutil.disk_partitions(all=False)
     result = []
     for p in partitions:
-        if p.device.startswith("/dev/loop"):
+        if p.device.startswith(("/dev/loop", "/boot", "/boot/efi")):
             continue
         try:
             usage = psutil.disk_usage(p.mountpoint)

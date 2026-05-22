@@ -1,22 +1,22 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from starlette.responses import FileResponse
-from pathlib import Path
+from fastapi.responses import FileResponse
+import os
 
-from routes import disks, hardware, system
+from routers import metrics, storage
 
 app = FastAPI(title="VirusLab Dashboard")
 
-app.include_router(disks.router, prefix="/api")
-app.include_router(hardware.router, prefix="/api")
-app.include_router(system.router, prefix="/api")
+app.include_router(metrics.router, prefix="/api")
+app.include_router(storage.router, prefix="/api")
 
-frontend_path = Path(__file__).parent.parent / "frontend"
-app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
 
 @app.get("/")
-def root():
-    return FileResponse(str(frontend_path / "index.html"))
+async def serve_frontend():
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 @app.get("/api/ping")
 def ping():

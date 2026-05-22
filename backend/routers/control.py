@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from typing import Any, Optional
-from ..config import get_settings, Settings
+from config import get_settings, Settings
 
 router = APIRouter(tags=["control"])
 

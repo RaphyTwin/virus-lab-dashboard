@@ -2,8 +2,12 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
+import sys
+import os
 
 from routers import control, metrics, storage
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 app = FastAPI(title="VirusLab Dashboard")
 

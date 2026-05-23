@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import os
 
-from routers import control, metrics, storage
+from routers import control, metrics, storage, updates
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -14,6 +14,7 @@ app = FastAPI(title="VirusLab Dashboard")
 app.include_router(control.router, prefix="/api")
 app.include_router(metrics.router, prefix="/api")
 app.include_router(storage.router, prefix="/api")
+app.include_router(updates.router, prefix="/api")
 
 frontend_path = Path(__file__).parent.parent / "frontend"
 app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")

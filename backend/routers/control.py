@@ -164,7 +164,7 @@ async def tailscale_auto_off(req: AutoOffRequest) -> dict[str, Any]:
 # ── Tailscale: Cancel Auto-Off ────────────────────────────────────────────────
 
 @router.post("/control/tailscale/cancel-auto-off")
-async def tailscale_cancel_auto_off() -> dict[str, Any]:
+def tailscale_cancel_auto_off() -> dict[str, Any]:
     global _tailscale_timer_task, _tailscale_timer_end
     if _tailscale_timer_task and not _tailscale_timer_task.done():
         _tailscale_timer_task.cancel()

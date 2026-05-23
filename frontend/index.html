@@ -518,6 +518,131 @@
   }
   .power-card .card-label { margin-bottom: 4px; }
 
+  /* ── Updates section ── */
+  .update-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    border: 1px solid;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .update-banner.has-updates {
+    background: var(--accent-dim);
+    border-color: rgba(240,165,0,0.3);
+    color: var(--accent);
+  }
+  .update-banner.up-to-date {
+    background: var(--green-dim);
+    border-color: rgba(61,214,140,0.25);
+    color: var(--green);
+  }
+  .update-banner.checking {
+    background: var(--surface2);
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+
+  .pkg-list {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 10px;
+  }
+  .pkg-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .pkg-row:last-child { border-bottom: none; }
+  .pkg-name { font-family: var(--font-mono); font-size: 12px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pkg-ver { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .pkg-arrow { color: var(--text-dim); font-size: 11px; }
+
+  .svc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .svc-card.update-available { border-color: rgba(240,165,0,0.4); }
+  .svc-card.up-to-date { border-color: rgba(61,214,140,0.2); }
+  .svc-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .svc-name { font-weight: 600; font-size: 14px; }
+  .svc-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .svc-body { padding: 12px 16px; }
+  .svc-versions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .svc-ver-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+  .svc-ver-val { font-family: var(--font-mono); font-size: 14px; margin-top: 3px; }
+  .svc-ver-val.new-ver { color: var(--accent); }
+  .svc-date { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+
+  /* Upgrade terminal output */
+  .upgrade-terminal {
+    display: none;
+    background: #0a0b0d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .upgrade-terminal.open { display: block; }
+  .upgrade-terminal pre {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #9ca3b0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .upgrade-terminal .line-ok { color: var(--green); }
+  .upgrade-terminal .line-err { color: var(--red); }
+  .upgrade-terminal .line-done { color: var(--blue); }
+
+  /* Add service form */
+  .add-svc-form {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .add-svc-form.open { display: block; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .form-field { display: flex; flex-direction: column; gap: 4px; }
+  .form-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+  .form-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--blue); }
+  .form-input::placeholder { color: var(--text-dim); }
+
   /* scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -692,6 +817,89 @@
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ── Updates & Software-Pflege ── -->
+  <section class="section">
+    <div class="section-title">Updates &amp; Software-Pflege</div>
+
+    <!-- apt -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px">System (apt)</div>
+      <div id="apt-banner" class="update-banner checking">⟳ Prüfe Paket-Updates…</div>
+      <div class="grid grid-2">
+        <div class="card" id="apt-card">
+          <div class="card-label" style="justify-content:space-between">
+            Verfügbare Pakete
+            <button class="btn btn-ghost btn-sm" onclick="checkApt()" id="btn-apt-check">↺ Aktualisieren</button>
+          </div>
+          <div id="apt-content"><span class="loading-text">Lade…</span></div>
+        </div>
+        <div class="card" id="apt-upgrade-card">
+          <div class="card-label">Upgrade ausführen</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+            Führt <code style="font-family:var(--font-mono);background:var(--surface2);padding:1px 5px;border-radius:3px">apt-get upgrade -y</code> aus und zeigt die Ausgabe live.
+          </div>
+          <button class="btn btn-primary" id="btn-apt-upgrade" onclick="runAptUpgrade()">
+            ↑ Upgrade starten
+          </button>
+          <div class="upgrade-terminal" id="upgrade-terminal">
+            <pre id="upgrade-output"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)">Dienste</div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleAddSvcForm()">+ Dienst hinzufügen</button>
+      </div>
+
+      <!-- Add service form -->
+      <div class="add-svc-form" id="add-svc-form">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px">Neuen Dienst überwachen</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">ID (eindeutig)</label>
+            <input class="form-input" id="svc-id" placeholder="z.B. nextcloud" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Anzeigename</label>
+            <input class="form-input" id="svc-name" placeholder="z.B. Nextcloud" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">GitHub Repo</label>
+            <input class="form-input" id="svc-repo" placeholder="z.B. nextcloud/server" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Beschreibung</label>
+            <input class="form-input" id="svc-desc" placeholder="optional" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Version-Befehl (kommagetrennt)</label>
+            <input class="form-input" id="svc-cmd" placeholder="docker,inspect,--format,{{.Config.Image}},container_name" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Version-Regex</label>
+            <input class="form-input" id="svc-regex" placeholder=":v?([\\d.]+)" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-primary btn-sm" onclick="addService()">Hinzufügen</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleAddSvcForm()">Abbrechen</button>
+        </div>
+      </div>
+
+      <div class="grid grid-auto" id="services-grid">
+        <span class="loading-text">Lade Dienste…</span>
+      </div>
     </div>
   </section>
 
@@ -1103,6 +1311,229 @@ async function fetchTemps() {
   } catch(e) { console.error('Temps error:', e); }
 }
 
+// ── apt updates ──────────────────────────────────────────────────────────────
+
+async function checkApt() {
+  const btn = document.getElementById('btn-apt-check');
+  const banner = document.getElementById('apt-banner');
+  const content = document.getElementById('apt-content');
+  if (btn) { btn.disabled = true; btn.textContent = '⟳'; }
+  banner.className = 'update-banner checking';
+  banner.textContent = '⟳ Prüfe Paket-Updates…';
+
+  try {
+    const r = await fetch('/api/updates/apt');
+    const d = await r.json();
+
+    if (!d.available) {
+      banner.className = 'update-banner checking';
+      banner.innerHTML = '⚠ apt nicht verfügbar auf diesem System';
+      content.innerHTML = '<span class="loading-text">—</span>';
+      return;
+    }
+
+    const count = d.package_count;
+    if (count === 0) {
+      banner.className = 'update-banner up-to-date';
+      banner.innerHTML = '✓ Alle Pakete aktuell';
+      content.innerHTML = '<span style="font-size:13px;color:var(--green)">Keine Updates verfügbar</span>';
+    } else {
+      const secNote = d.security_estimate > 0
+        ? ` <span style="color:var(--red)">(~${d.security_estimate} sicherheitsrelevant)</span>`
+        : '';
+      banner.className = 'update-banner has-updates';
+      banner.innerHTML = `⚑ ${count} Paket${count !== 1 ? 'e' : ''} verfügbar${secNote}`;
+
+      const rows = d.packages.slice(0, 60).map(p =>
+        `<div class="pkg-row">
+          <span class="pkg-name">${p.name}</span>
+          <span class="pkg-ver">${p.current_version}</span>
+          <span class="pkg-arrow">→</span>
+          <span class="pkg-ver" style="color:var(--accent)">${p.new_version}</span>
+        </div>`
+      ).join('');
+      const more = d.packages.length > 60
+        ? `<div style="font-size:11px;color:var(--text-dim);padding-top:6px">… und ${d.packages.length - 60} weitere</div>`
+        : '';
+      content.innerHTML = `<div class="pkg-list">${rows}${more}</div>`;
+    }
+  } catch(e) {
+    banner.className = 'update-banner checking';
+    banner.textContent = '✗ Fehler beim Prüfen';
+    console.error('apt check error:', e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '↺ Aktualisieren'; }
+  }
+}
+
+async function runAptUpgrade() {
+  const btn = document.getElementById('btn-apt-upgrade');
+  const terminal = document.getElementById('upgrade-terminal');
+  const output = document.getElementById('upgrade-output');
+
+  btn.disabled = true;
+  btn.textContent = '⟳ Läuft…';
+  terminal.classList.add('open');
+  output.textContent = '';
+
+  try {
+    const resp = await fetch('/api/updates/apt/upgrade', { method: 'POST' });
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const text = decoder.decode(value);
+      for (const chunk of text.split('\n')) {
+        if (!chunk.startsWith('data: ')) continue;
+        const line = chunk.slice(6);
+        if (!line) continue;
+        const span = document.createElement('span');
+        if (line.startsWith('[DONE')) {
+          span.className = 'line-done';
+          span.textContent = '\n' + line + '\n';
+          // Re-check apt after upgrade
+          setTimeout(checkApt, 1000);
+        } else if (line.includes('Err:') || line.includes('error')) {
+          span.className = 'line-err';
+          span.textContent = line + '\n';
+        } else if (line.includes('upgraded') || line.includes('installed')) {
+          span.className = 'line-ok';
+          span.textContent = line + '\n';
+        } else {
+          span.textContent = line + '\n';
+        }
+        output.appendChild(span);
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    }
+  } catch(e) {
+    output.textContent += '\n[Verbindungsfehler: ' + e.message + ']\n';
+    console.error('upgrade error:', e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↑ Upgrade starten';
+  }
+}
+
+// ── Service release monitoring ────────────────────────────────────────────────
+
+function fmt_date_ago(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const diff = Date.now() - d.getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'heute';
+  if (days === 1) return 'gestern';
+  if (days < 30) return `vor ${days} Tagen`;
+  if (days < 365) return `vor ${Math.floor(days/30)} Monaten`;
+  return `vor ${Math.floor(days/365)} Jahren`;
+}
+
+async function fetchServices() {
+  try {
+    const r = await fetch('/api/updates/services');
+    const d = await r.json();
+    const grid = document.getElementById('services-grid');
+
+    if (!d.services.length) {
+      grid.innerHTML = '<div class="card"><span class="loading-text">Keine Dienste konfiguriert. Füge Dienste über den Button hinzu.</span></div>';
+      return;
+    }
+
+    grid.innerHTML = d.services.map(svc => {
+      const statusCls = svc.status === 'update-available' ? 'update-available'
+        : svc.status === 'up-to-date' ? 'up-to-date' : '';
+      const statusBadge = svc.status === 'update-available'
+        ? '<span class="badge warn"><span class="badge-dot"></span>Update verfügbar</span>'
+        : svc.status === 'up-to-date'
+          ? '<span class="badge ok"><span class="badge-dot"></span>Aktuell</span>'
+          : '<span class="badge unknown">Unbekannt</span>';
+
+      const installedColor = svc.status === 'update-available' ? 'var(--text-muted)' : 'var(--green)';
+      const latestColor = svc.status === 'update-available' ? 'var(--accent)' : 'var(--green)';
+
+      return `<div class="svc-card ${statusCls}">
+        <div class="svc-header">
+          <div>
+            <div class="svc-name">${svc.name}</div>
+            <div class="svc-desc">${svc.description}</div>
+          </div>
+          ${statusBadge}
+        </div>
+        <div class="svc-body">
+          <div class="svc-versions">
+            <div>
+              <div class="svc-ver-label">Installiert</div>
+              <div class="svc-ver-val" style="color:${installedColor}">${svc.installed_version || '—'}</div>
+            </div>
+            <div>
+              <div class="svc-ver-label">Neueste Version</div>
+              <div class="svc-ver-val ${svc.status === 'update-available' ? 'new-ver' : ''}" style="color:${latestColor}">${svc.latest_version || '—'}</div>
+            </div>
+          </div>
+          ${svc.latest_published_at ? `<div class="svc-date">Release: ${fmt_date_ago(svc.latest_published_at)} (${svc.latest_published_at.split('T')[0]})</div>` : ''}
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${svc.release_url ? `<a href="${svc.release_url}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" style="text-decoration:none">↗ Release-Notes</a>` : ''}
+            <button class="btn btn-ghost btn-sm" onclick="removeService('${svc.id}')" style="color:var(--red);border-color:rgba(240,84,84,.25)">✕ Entfernen</button>
+          </div>
+          ${svc.release_excerpt ? `<div style="margin-top:10px;font-size:11px;color:var(--text-dim);font-family:var(--font-mono);border-top:1px solid var(--border);padding-top:8px;white-space:pre-wrap;max-height:80px;overflow:hidden">${svc.release_excerpt.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('Services error:', e); }
+}
+
+// ── Add / remove service ──────────────────────────────────────────────────────
+
+function toggleAddSvcForm() {
+  document.getElementById('add-svc-form').classList.toggle('open');
+}
+
+async function addService() {
+  const id = document.getElementById('svc-id').value.trim();
+  const name = document.getElementById('svc-name').value.trim();
+  const repo = document.getElementById('svc-repo').value.trim();
+  const desc = document.getElementById('svc-desc').value.trim();
+  const cmdRaw = document.getElementById('svc-cmd').value.trim();
+  const regex = document.getElementById('svc-regex').value.trim();
+
+  if (!id || !name || !repo) {
+    alert('ID, Name und GitHub Repo sind Pflichtfelder.');
+    return;
+  }
+
+  const body = {
+    id, name, description: desc, github_repo: repo,
+    version_cmd: cmdRaw ? cmdRaw.split(',').map(s => s.trim()) : [],
+    version_regex: regex,
+  };
+
+  try {
+    const r = await fetch('/api/updates/config/services', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (r.ok) {
+      document.getElementById('add-svc-form').classList.remove('open');
+      ['svc-id','svc-name','svc-repo','svc-desc','svc-cmd','svc-regex'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      await fetchServices();
+    }
+  } catch(e) { console.error('Add service error:', e); }
+}
+
+async function removeService(id) {
+  if (!confirm(`Dienst "${id}" aus der Überwachung entfernen?`)) return;
+  try {
+    await fetch(`/api/updates/config/services/${id}`, { method: 'DELETE' });
+    await fetchServices();
+  } catch(e) { console.error('Remove service error:', e); }
+}
+
 // ── Admin panel toggle ────────────────────────────────────────────────────────
 
 let adminOpen = false;
@@ -1137,6 +1568,7 @@ async function refreshAll() {
     fetchZFS(),
     fetchSMART(),
     fetchTRIM(),
+    fetchServices(),
     ...(adminOpen ? [fetchTemps()] : []),
   ]);
   const now = new Date();
@@ -1146,7 +1578,9 @@ async function refreshAll() {
 
 // Initial load + polling every 30s
 refreshAll();
+checkApt();                          // apt check on start (slow, don't block main refresh)
 setInterval(refreshAll, 30000);
+setInterval(checkApt, 300000);       // re-check apt every 5 minutes
 </script>
 <!-- ── Confirmation Modal ── -->
 <div class="modal-backdrop" id="modal-backdrop">
